@@ -1,9 +1,9 @@
-#include "cryptlib.h"
-#include "integer.h"
-#include "nbtheory.h"
-#include "osrng.h"
-#include "rsa.h"
-#include "sha.h"
+#include "./cryptopp810/cryptlib.h"
+#include "./cryptopp810/integer.h"
+#include "./cryptopp810/nbtheory.h"
+#include "./cryptopp810/osrng.h"
+#include "./cryptopp810/rsa.h"
+#include "./cryptopp810/sha.h"
 using namespace CryptoPP;
 
 #include <iostream>
