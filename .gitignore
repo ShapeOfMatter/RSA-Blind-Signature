@@ -30,3 +30,7 @@
 *.exe
 *.out
 *.app
+
+# The Crypto++ library
+cryptopp*
+
