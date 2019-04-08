@@ -15,11 +15,11 @@ using std::runtime_error;
 using namespace CryptoPP;
 
 #define DEBUG    1
-#define KEY_SIZE 1024
+#define KEY_SIZE 2048
 
 static AutoSeededRandomPool rng_source;
 
-void GenerateKeys(RSA::PrivateKey &private_key, RSA::PublicKey &public_key, size_t key_size=1024)
+void GenerateKeys(RSA::PrivateKey &private_key, RSA::PublicKey &public_key, size_t key_size)
 {
     #if DEBUG
         cout << "Generating Keys..." << endl;
@@ -34,7 +34,7 @@ void GenerateKeys(RSA::PrivateKey &private_key, RSA::PublicKey &public_key, size
         const Integer &d = private_key.GetPrivateExponent();
 
         cout << "Modulus: " << std::hex << n << endl;
-        cout << "Public Exponent: " << std::hex << e << endl;
+        cout << "Public Exponent: " << std::hex << e << endl; //why is this always "11h"
         cout << "Private Exponent: " << std::hex << d << endl;
     #endif
 }
@@ -46,14 +46,14 @@ Integer GenerateHash(const string &message)
 
     SecByteBlock orig((const byte*)message.c_str(), message.size());
 
-    buff.resize(SHA512::BLOCKSIZE);
-    hash.CalculateDigest(buff, orig, orig.size());
+    buff.resize(SHA512::BLOCKSIZE); //should this be min against n.ByteCount()?
+    hash.CalculateDigest(buff, orig, orig.size());//why not a truncated digest?
 
     Integer hm(buff.data(), buff.size());
 
     #if DEBUG
         cout << "Message: " << message << endl;
-        cout << "Hash: " << std::hex << hm << endl;
+        cout << "Hash: " << std::hex << hm << endl; //why is half the houtput "...000..."?
     #endif
 
     return hm;
@@ -87,7 +87,7 @@ Integer MessageUnblinding(const Integer &message, const Integer &random, const R
 {
     const Integer &n = public_key.GetModulus();
 
-    Integer signed_unblinded = a_times_b_mod_c(message, random, n);
+    Integer signed_unblinded = a_times_b_mod_c(message, random, n); //shouldn't this be random.InverseMod(n)?
 
     #if DEBUG
         cout << "Signed Unblinded: " << std::hex << signed_unblinded << endl;
@@ -127,7 +127,7 @@ int main(int argc, char *argv[])
 
     // Alice create a blind message
     Integer random;
-    string message = "Hello world!";
+    string message = "Hello world! How are you doing to day? It's a pretty nice day if i do say so myself. Lorum ipsum iembre debop. iricoy bambay, i embre de bop. How long do we really think this needs to be?sdf Probably it should be over a thousand characters, right? I don't know let's shoot for 600 because i'm lazy. sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss ok we're over 500 now. How about special characters? !@#$%^&*()_+SDFSDFSDSDF {}??//<>,,>><>||||}{[]```` I don't think c does any looking inside strings.";
     Integer original = GenerateHash(message);
     Integer blinded = MessageBlinding(original, public_key, random);
 
