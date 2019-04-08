@@ -34,3 +34,5 @@
 # The Crypto++ library
 cryptopp*
 
+# VS Code
+.vscode/

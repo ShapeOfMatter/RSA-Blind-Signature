@@ -1,107 +1,159 @@
-#include "./cryptopp810/cryptlib.h"
-#include "./cryptopp810/integer.h"
-#include "./cryptopp810/nbtheory.h"
-#include "./cryptopp810/osrng.h"
-#include "./cryptopp810/rsa.h"
-#include "./cryptopp810/sha.h"
-using namespace CryptoPP;
-
 #include <iostream>
 #include <stdexcept>
+
+#include "cryptopp810/rsa.h"
+#include "cryptopp810/sha.h"
+#include "cryptopp810/osrng.h"
+#include "cryptopp810/integer.h"
+#include "cryptopp810/cryptlib.h"
+#include "cryptopp810/nbtheory.h"
+
 using std::cout;
 using std::endl;
+using std::string;
 using std::runtime_error;
+using namespace CryptoPP;
 
-int main(int argc, char* argv[])
+#define DEBUG    1
+#define KEY_SIZE 1024
+
+static AutoSeededRandomPool rng_source;
+
+void GenerateKeys(RSA::PrivateKey &private_key, RSA::PublicKey &public_key, size_t key_size=1024)
 {
-    // Bob artificially small key pair
-    AutoSeededRandomPool prng;
-    RSA::PrivateKey privKey;
+    #if DEBUG
+        cout << "Generating Keys..." << endl;
+    #endif
 
-    privKey.GenerateRandomWithKeySize(prng, 64);
-    RSA::PublicKey pubKey(privKey);
+    private_key.GenerateRandomWithKeySize(rng_source, key_size);
+    public_key = RSA::PublicKey(private_key);
 
-    // Convenience
-    const Integer& n = pubKey.GetModulus();
-    const Integer& e = pubKey.GetPublicExponent();
-    const Integer& d = privKey.GetPrivateExponent();
+    #if DEBUG
+        const Integer &n = public_key.GetModulus();
+        const Integer &e = public_key.GetPublicExponent();
+        const Integer &d = private_key.GetPrivateExponent();
 
-    // Print params
-    cout << "Pub mod: " << std::hex << pubKey.GetModulus() << endl;
-    cout << "Pub exp: " << std::hex << e << endl;
-    cout << "Priv mod: " << std::hex << privKey.GetModulus() << endl;
-    cout << "Priv exp: " << std::hex << d << endl;
+        cout << "Modulus: " << std::hex << n << endl;
+        cout << "Public Exponent: " << std::hex << e << endl;
+        cout << "Private Exponent: " << std::hex << d << endl;
+    #endif
+}
 
-    // For sizing the hashed message buffer. This should be SHA256 size.
-    const size_t SIG_SIZE = UnsignedMin(SHA256::BLOCKSIZE, n.ByteCount());
+Integer GenerateHash(const string &message)
+{
+    SHA512 hash;
+    SecByteBlock buff;
 
-    // Scratch
-    SecByteBlock buff1, buff2, buff3;
+    SecByteBlock orig((const byte*)message.c_str(), message.size());
 
-    // Alice original message to be signed by Bob
-    SecByteBlock orig((const byte*)"secret", 6);
-    Integer m(orig.data(), orig.size());
-    cout << "Message: " << std::hex << m << endl;
+    buff.resize(SHA512::BLOCKSIZE);
+    hash.CalculateDigest(buff, orig, orig.size());
 
-    // Hash message per Rabin (1979)
-    buff1.resize(SIG_SIZE);
-    SHA256 hash1;
-    hash1.CalculateTruncatedDigest(buff1, buff1.size(), orig, orig.size());
+    Integer hm(buff.data(), buff.size());
 
-    // H(m) as Integer
-    Integer hm(buff1.data(), buff1.size());
-    cout << "H(m): " << std::hex << hm << endl;
+    #if DEBUG
+        cout << "Message: " << message << endl;
+        cout << "Hash: " << std::hex << hm << endl;
+    #endif
 
-    // Alice blinding
-    Integer r;
-    do {
-        r.Randomize(prng, Integer::One(), n - Integer::One());
-    } while (!RelativelyPrime(r, n));
+    return hm;
+}
 
-    // Blinding factor
-    Integer b = a_exp_b_mod_c(r, e, n);
-    cout << "Random: " << std::hex << b << endl;
+Integer MessageBlinding(const Integer &message, const RSA::PublicKey &public_key, Integer &random)
+{
+    const Integer &n = public_key.GetModulus();
+    const Integer &e = public_key.GetPublicExponent();
 
-    // Alice blinded message
-    Integer mm = a_times_b_mod_c(hm, b, n);
-    cout << "Blind msg: " << std::hex << mm << endl;
+    // Blinding factor r
+    do
+    {
+        random.Randomize(rng_source, Integer::One(), n - Integer::One());
+    } while (!RelativelyPrime(random, n));
 
-    // Bob sign
-    Integer ss = privKey.CalculateInverse(prng, mm);
-    cout << "Blind sign: " << ss << endl;
+    Integer b = a_exp_b_mod_c(random, e, n);
 
-    // Alice checks s(s'(x)) = x. This is from Chaum's paper
-    Integer c = pubKey.ApplyFunction(ss);
-    cout << "Check sign: " << c << endl;
-    if (c != mm)
-        throw runtime_error("Alice cross-check failed");
+    #if DEBUG
+        cout << "Random: " << std::hex << b << endl;
+    #endif
 
-    // Alice remove blinding
-    Integer s = a_times_b_mod_c(ss, r.InverseMod(n), n);
-    cout << "Unblind sign: " << s << endl;
+    // Blinded message
+    Integer hidden_message = a_times_b_mod_c(message, b, n);
 
-    // Eve verifies
-    Integer v = pubKey.ApplyFunction(s);    
-    cout << "Verify: " << std::hex << v << endl;
+    // return blinded message
+    return hidden_message;
+}
 
-    // Convert to a string
-    size_t req = v.MinEncodedSize();
-    buff2.resize(req);
-    v.Encode(&buff2[0], buff2.size());
+Integer MessageUnblinding(const Integer &message, const Integer &random, const RSA::PublicKey &public_key)
+{
+    const Integer &n = public_key.GetModulus();
 
-    // Hash message per Rabin (1979)
-    buff3.resize(SIG_SIZE);
-    SHA256 hash2;
-    hash2.CalculateTruncatedDigest(buff3, buff3.size(), orig, orig.size());
+    Integer signed_unblinded = a_times_b_mod_c(message, random, n);
 
-    // Constant time compare
-    bool equal = buff2.size() == buff3.size() && VerifyBufsEqual(
-        buff2.data(), buff3.data(), buff3.size());
+    #if DEBUG
+        cout << "Signed Unblinded: " << std::hex << signed_unblinded << endl;
+    #endif
 
-    if (!equal)
-        throw runtime_error("Eve verified failed");
+    return signed_unblinded;
+}
 
-    cout << "Verified signature" << endl;
+Integer SigningAuthority(const RSA::PrivateKey &private_key, const Integer &message)
+{
+    #if DEBUG
+        cout << "Generating signature..." << endl;
+        cout << "Message: " << std::hex << message << endl;
+    #endif
 
+    Integer signed_message = private_key.CalculateInverse(rng_source, message);
+
+    #if DEBUG
+        cout << "Signed Message: " << std::hex << signed_message << endl;
+    #endif
+
+    return signed_message;
+}
+
+bool VerifySigning(const Integer &message, const Integer &original, const RSA::PublicKey &public_key)
+{
+    return public_key.ApplyFunction(message) == original;
+}
+
+int main(int argc, char *argv[])
+{
+    RSA::PublicKey public_key;
+    RSA::PrivateKey private_key;
+
+    // generate public and private keys
+    GenerateKeys(private_key, public_key, KEY_SIZE);
+
+    // Alice create a blind message
+    Integer random;
+    string message = "Hello world!";
+    Integer original = GenerateHash(message);
+    Integer blinded = MessageBlinding(original, public_key, random);
+
+    // Send blinded message for signing
+    Integer signed_blinded = SigningAuthority(private_key, blinded);
+
+    // Alice will verify signature
+    if (!VerifySigning(signed_blinded, blinded, public_key))
+    {
+        cout << "Alice verification failed" << endl;
+        exit(EXIT_FAILURE);
+    }
+
+    // Alice will remove blinding factor
+    Integer signed_unblinded = MessageUnblinding(signed_blinded, random, public_key);
+
+    // Eve verification stage
+    Integer message_hash = GenerateHash(message);
+    Integer received_hash = public_key.ApplyFunction(signed_unblinded);
+    if (message_hash == received_hash)
+    {
+        cout << "Verification failed" << endl;
+        exit(EXIT_FAILURE);
+    }
+
+    cout << "Signature Verified" << endl;
+    // return success
     return 0;
 }
