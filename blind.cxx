@@ -46,14 +46,14 @@ Integer GenerateHash(const string &message)
 
     SecByteBlock orig((const byte*)message.c_str(), message.size());
 
-    buff.resize(SHA512::BLOCKSIZE); //should this be min against n.ByteCount()?
+    buff.resize(SHA512::DIGESTSIZE); //should this be min against n.ByteCount()?
     hash.CalculateDigest(buff, orig, orig.size());//why not a truncated digest?
 
     Integer hm(buff.data(), buff.size());
 
     #if DEBUG
         cout << "Message: " << message << endl;
-        cout << "Hash: " << std::hex << hm << endl; //why is half the houtput "...000..."?
+        cout << "Hash: " << std::hex << hm << endl;
     #endif
 
     return hm;
