@@ -46,7 +46,7 @@ Integer GenerateHash(const string &message)
     SecByteBlock orig((const byte*)message.c_str(), message.size());
 
     buff.resize(SHA512::DIGESTSIZE);
-    hash.CalculateDigest(buff, orig, orig.size());//why not a truncated digest?
+    hash.CalculateTruncatedDigest(buff, buff.size(), orig, orig.size());//why not a truncated digest?
 
     Integer hashed_message(buff.data(), buff.size());
 
