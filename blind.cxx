@@ -46,7 +46,7 @@ Integer GenerateHash(const string &message)
     SecByteBlock orig((const byte*)message.c_str(), message.size());
 
     buff.resize(SHA512::DIGESTSIZE);
-    hash.CalculateTruncatedDigest(buff, buff.size(), orig, orig.size());//why not a truncated digest?
+    hash.CalculateTruncatedDigest(buff, buff.size(), orig, orig.size());
 
     Integer hashed_message(buff.data(), buff.size());
 
@@ -126,7 +126,7 @@ int main(int argc, char *argv[])
 
     // Alice create a blind message
     Integer client_secret;
-    string message = "Hello world! How are you doing to day? It's a pretty nice day if i do say so myself. Lorum ipsum iembre debop. iricoy bambay, i embre de bop. How long do we really think this needs to be?sdf Probably it should be over a thousand characters, right? I don't know let's shoot for 600 because i'm lazy. sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss ok we're over 500 now. How about special characters? !@#$%^&*()_+SDFSDFSDSDF {}??//<>,,>><>||||}{[]```` I don't think c does any looking inside strings.";
+    string message = "Hello world! How are you doing to day? It's a pretty nice day if i do say so myself1.";
     Integer original_hash = GenerateHash(message);
     Integer blinded = MessageBlinding(original_hash, public_key, client_secret);
 
