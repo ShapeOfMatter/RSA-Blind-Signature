@@ -147,6 +147,7 @@ int main(int argc, char *argv[])
     // Eve verification stage
     Integer message_hash = GenerateHash(message);
     Integer received_hash = public_key.ApplyFunction(signed_unblinded);
+    cout << "Signature payload: " << received_hash << endl;
     if (message_hash != received_hash)
     {
         cout << "Verification failed" << endl;
