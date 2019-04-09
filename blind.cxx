@@ -87,7 +87,7 @@ Integer MessageUnblinding(const Integer &blinded_signature, const Integer &clien
 {
     const Integer &n = public_key.GetModulus();
 
-    Integer signed_unblinded = a_times_b_mod_c(blinded_signature, client_secret, n); //shouldn't this be client_secret.InverseMod(n)?
+    Integer signed_unblinded = a_times_b_mod_c(blinded_signature, client_secret.InverseMod(n), n);
 
     #if DEBUG
         cout << "Signed Unblinded: " << std::hex << signed_unblinded << endl;
@@ -147,8 +147,7 @@ int main(int argc, char *argv[])
     // Eve verification stage
     Integer message_hash = GenerateHash(message);
     Integer received_hash = public_key.ApplyFunction(signed_unblinded);
-    cout << "Signature payload: " << received_hash << endl;
-    if (message_hash != received_hash) //WTF?
+    if (message_hash != received_hash)
     {
         cout << "Verification failed" << endl;
         exit(EXIT_FAILURE);
