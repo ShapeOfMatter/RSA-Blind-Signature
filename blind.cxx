@@ -147,7 +147,7 @@ int main(int argc, char *argv[])
     // Eve verification stage
     Integer message_hash = GenerateHash(message);
     Integer received_hash = public_key.ApplyFunction(signed_unblinded);
-    if (message_hash == received_hash)
+    if (message_hash == received_hash) //WTF?
     {
         cout << "Verification failed" << endl;
         exit(EXIT_FAILURE);
