@@ -34,8 +34,7 @@ void GenerateTestKeys(RSA::PrivateKey &private_key, RSA::PublicKey &public_key, 
         const Integer &d = private_key.GetPrivateExponent();
 
         cout << "Modulus: " << std::hex << n << endl;
-        cout << "Public Exponent: " << std::hex << e << endl; //why is this always "11h"?
-        cout << "Private Exponent: " << std::hex << d << endl; //maybe we shouldn't even print this?
+        cout << "Public Exponent: " << std::hex << e << endl;
     #endif
 }
 
