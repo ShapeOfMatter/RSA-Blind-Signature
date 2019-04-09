@@ -19,7 +19,7 @@ using namespace CryptoPP;
 
 static AutoSeededRandomPool rng_source;
 
-void GenerateKeys(RSA::PrivateKey &private_key, RSA::PublicKey &public_key, size_t key_size)
+void GenerateTestKeys(RSA::PrivateKey &private_key, RSA::PublicKey &public_key, size_t key_size)
 {
     #if DEBUG
         cout << "Generating Keys..." << endl;
@@ -34,8 +34,8 @@ void GenerateKeys(RSA::PrivateKey &private_key, RSA::PublicKey &public_key, size
         const Integer &d = private_key.GetPrivateExponent();
 
         cout << "Modulus: " << std::hex << n << endl;
-        cout << "Public Exponent: " << std::hex << e << endl; //why is this always "11h"
-        cout << "Private Exponent: " << std::hex << d << endl;
+        cout << "Public Exponent: " << std::hex << e << endl; //why is this always "11h"?
+        cout << "Private Exponent: " << std::hex << d << endl; //maybe we shouldn't even print this?
     #endif
 }
 
@@ -46,20 +46,20 @@ Integer GenerateHash(const string &message)
 
     SecByteBlock orig((const byte*)message.c_str(), message.size());
 
-    buff.resize(SHA512::DIGESTSIZE); //should this be min against n.ByteCount()?
+    buff.resize(SHA512::DIGESTSIZE);
     hash.CalculateDigest(buff, orig, orig.size());//why not a truncated digest?
 
-    Integer hm(buff.data(), buff.size());
+    Integer hashed_message(buff.data(), buff.size());
 
     #if DEBUG
         cout << "Message: " << message << endl;
-        cout << "Hash: " << std::hex << hm << endl;
+        cout << "Hash: " << std::hex << hashed_message << endl;
     #endif
 
-    return hm;
+    return hashed_message;
 }
 
-Integer MessageBlinding(const Integer &message, const RSA::PublicKey &public_key, Integer &random)
+Integer MessageBlinding(const Integer &hashed_message, const RSA::PublicKey &public_key, Integer &client_secret)
 {
     const Integer &n = public_key.GetModulus();
     const Integer &e = public_key.GetPublicExponent();
@@ -67,27 +67,27 @@ Integer MessageBlinding(const Integer &message, const RSA::PublicKey &public_key
     // Blinding factor r
     do
     {
-        random.Randomize(rng_source, Integer::One(), n - Integer::One());
-    } while (!RelativelyPrime(random, n));
+        client_secret.Randomize(rng_source, Integer::One(), n - Integer::One());
+    } while (!RelativelyPrime(client_secret, n));
 
-    Integer b = a_exp_b_mod_c(random, e, n);
+    Integer b = a_exp_b_mod_c(client_secret, e, n);
 
     #if DEBUG
-        cout << "Random: " << std::hex << b << endl;
+        cout << "Random Client secret: " << std::hex << b << endl;
     #endif
 
-    // Blinded message
-    Integer hidden_message = a_times_b_mod_c(message, b, n);
+    // Blinded payload
+    Integer hidden_message = a_times_b_mod_c(hashed_message, b, n);
 
     // return blinded message
     return hidden_message;
 }
 
-Integer MessageUnblinding(const Integer &message, const Integer &random, const RSA::PublicKey &public_key)
+Integer MessageUnblinding(const Integer &blinded_signature, const Integer &client_secret, const RSA::PublicKey &public_key)
 {
     const Integer &n = public_key.GetModulus();
 
-    Integer signed_unblinded = a_times_b_mod_c(message, random, n); //shouldn't this be random.InverseMod(n)?
+    Integer signed_unblinded = a_times_b_mod_c(blinded_signature, client_secret, n); //shouldn't this be client_secret.InverseMod(n)?
 
     #if DEBUG
         cout << "Signed Unblinded: " << std::hex << signed_unblinded << endl;
@@ -96,14 +96,14 @@ Integer MessageUnblinding(const Integer &message, const Integer &random, const R
     return signed_unblinded;
 }
 
-Integer SigningAuthority(const RSA::PrivateKey &private_key, const Integer &message)
+Integer SigningAuthority(const RSA::PrivateKey &private_key, const Integer &blinded_hash)
 {
     #if DEBUG
         cout << "Generating signature..." << endl;
-        cout << "Message: " << std::hex << message << endl;
+        cout << "Blinded Payload: " << std::hex << blinded_hash << endl;
     #endif
 
-    Integer signed_message = private_key.CalculateInverse(rng_source, message);
+    Integer signed_message = private_key.CalculateInverse(rng_source, blinded_hash);
 
     #if DEBUG
         cout << "Signed Message: " << std::hex << signed_message << endl;
@@ -123,13 +123,13 @@ int main(int argc, char *argv[])
     RSA::PrivateKey private_key;
 
     // generate public and private keys
-    GenerateKeys(private_key, public_key, KEY_SIZE);
+    GenerateTestKeys(private_key, public_key, KEY_SIZE);
 
     // Alice create a blind message
-    Integer random;
+    Integer client_secret;
     string message = "Hello world! How are you doing to day? It's a pretty nice day if i do say so myself. Lorum ipsum iembre debop. iricoy bambay, i embre de bop. How long do we really think this needs to be?sdf Probably it should be over a thousand characters, right? I don't know let's shoot for 600 because i'm lazy. sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss ok we're over 500 now. How about special characters? !@#$%^&*()_+SDFSDFSDSDF {}??//<>,,>><>||||}{[]```` I don't think c does any looking inside strings.";
-    Integer original = GenerateHash(message);
-    Integer blinded = MessageBlinding(original, public_key, random);
+    Integer original_hash = GenerateHash(message);
+    Integer blinded = MessageBlinding(original_hash, public_key, client_secret);
 
     // Send blinded message for signing
     Integer signed_blinded = SigningAuthority(private_key, blinded);
@@ -142,7 +142,7 @@ int main(int argc, char *argv[])
     }
 
     // Alice will remove blinding factor
-    Integer signed_unblinded = MessageUnblinding(signed_blinded, random, public_key);
+    Integer signed_unblinded = MessageUnblinding(signed_blinded, client_secret, public_key);
 
     // Eve verification stage
     Integer message_hash = GenerateHash(message);
