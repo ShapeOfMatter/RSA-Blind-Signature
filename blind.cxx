@@ -34,8 +34,7 @@ void GenerateTestKeys(RSA::PrivateKey &private_key, RSA::PublicKey &public_key, 
         const Integer &d = private_key.GetPrivateExponent();
 
         cout << "Modulus: " << std::hex << n << endl;
-        cout << "Public Exponent: " << std::hex << e << endl; //why is this always "11h"?
-        cout << "Private Exponent: " << std::hex << d << endl; //maybe we shouldn't even print this?
+        cout << "Public Exponent: " << std::hex << e << endl;
     #endif
 }
 
@@ -48,6 +47,7 @@ Integer GenerateHash(const string &message)
 
     buff.resize(SHA512::DIGESTSIZE);
     hash.CalculateDigest(buff, orig, orig.size());//why not a truncated digest?
+    hash.CalculateTruncatedDigest(buff, buff.size(), orig, orig.size());
 
     Integer hashed_message(buff.data(), buff.size());
 
@@ -60,15 +60,21 @@ Integer GenerateHash(const string &message)
 }
 
 Integer MessageBlinding(const Integer &hashed_message, const RSA::PublicKey &public_key, Integer &client_secret)
+Integer GenerateClientSecret(const RSA::PublicKey &public_key)
 {
     const Integer &n = public_key.GetModulus();
-    const Integer &e = public_key.GetPublicExponent();
-
-    // Blinding factor r
+    Integer client_secret;
     do
     {
         client_secret.Randomize(rng_source, Integer::One(), n - Integer::One());
     } while (!RelativelyPrime(client_secret, n));
+    return client_secret;
+}
+
+Integer MessageBlinding(const Integer &hashed_message, const RSA::PublicKey &public_key, const Integer &client_secret)
+{
+    const Integer &n = public_key.GetModulus();
+    const Integer &e = public_key.GetPublicExponent();
 
     Integer b = a_exp_b_mod_c(client_secret, e, n);
 
@@ -87,7 +93,7 @@ Integer MessageUnblinding(const Integer &blinded_signature, const Integer &clien
 {
     const Integer &n = public_key.GetModulus();
 
-    Integer signed_unblinded = a_times_b_mod_c(blinded_signature, client_secret, n); //shouldn't this be client_secret.InverseMod(n)?
+    Integer signed_unblinded = a_times_b_mod_c(blinded_signature, client_secret.InverseMod(n), n);
 
     #if DEBUG
         cout << "Signed Unblinded: " << std::hex << signed_unblinded << endl;
@@ -126,8 +132,8 @@ int main(int argc, char *argv[])
     GenerateTestKeys(private_key, public_key, KEY_SIZE);
 
     // Alice create a blind message
-    Integer client_secret;
-    string message = "Hello world! How are you doing to day? It's a pretty nice day if i do say so myself. Lorum ipsum iembre debop. iricoy bambay, i embre de bop. How long do we really think this needs to be?sdf Probably it should be over a thousand characters, right? I don't know let's shoot for 600 because i'm lazy. sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss ok we're over 500 now. How about special characters? !@#$%^&*()_+SDFSDFSDSDF {}??//<>,,>><>||||}{[]```` I don't think c does any looking inside strings.";
+    Integer client_secret = GenerateClientSecret(public_key);
+    string message = "Hello world! How are you doing to day? It's a pretty nice day if i do say so myself1.";
     Integer original_hash = GenerateHash(message);
     Integer blinded = MessageBlinding(original_hash, public_key, client_secret);
 
@@ -147,7 +153,8 @@ int main(int argc, char *argv[])
     // Eve verification stage
     Integer message_hash = GenerateHash(message);
     Integer received_hash = public_key.ApplyFunction(signed_unblinded);
-    if (message_hash == received_hash) //WTF?
+    cout << "Signature payload: " << received_hash << endl;
+    if (message_hash != received_hash)
     {
         cout << "Verification failed" << endl;
         exit(EXIT_FAILURE);
