@@ -8,8 +8,7 @@ A RSA Blind Signature implementation based on the example code from the Crypto++
 
 TODO:
 - ✓ Link to instructions for installing the underlying library and getting this code running.
-- Upgrade the hash to a FDH or SHA512.
-- Upgrade the keys to 2048 bits or more.
+- ✓ Upgrade the hash to a FDH or SHA512.
+- ✓ Upgrade the keys to 2048 bits or more.
 - Seperate into three functions.
-- x Seperate into three files?
 - Provide instructions for building (installing?) this code.
