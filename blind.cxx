@@ -59,7 +59,6 @@ Integer GenerateHash(const string &message)
     return hashed_message;
 }
 
-Integer MessageBlinding(const Integer &hashed_message, const RSA::PublicKey &public_key, Integer &client_secret)
 Integer GenerateClientSecret(const RSA::PublicKey &public_key)
 {
     const Integer &n = public_key.GetModulus();
