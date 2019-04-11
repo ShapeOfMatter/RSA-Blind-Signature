@@ -6,3 +6,6 @@ blind: blind.cxx
 
 clean:
 	@rm -f *.exe
+
+.PHONY: clean
+
