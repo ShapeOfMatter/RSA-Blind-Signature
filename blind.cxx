@@ -58,16 +58,21 @@ Integer GenerateHash(const string &message)
     return hashed_message;
 }
 
-Integer MessageBlinding(const Integer &hashed_message, const RSA::PublicKey &public_key, Integer &client_secret)
+Integer GenerateClientSecret(const RSA::PublicKey &public_key)
 {
     const Integer &n = public_key.GetModulus();
-    const Integer &e = public_key.GetPublicExponent();
-
-    // Blinding factor r
+    Integer client_secret;
     do
     {
         client_secret.Randomize(rng_source, Integer::One(), n - Integer::One());
     } while (!RelativelyPrime(client_secret, n));
+    return client_secret;
+}
+
+Integer MessageBlinding(const Integer &hashed_message, const RSA::PublicKey &public_key, const Integer &client_secret)
+{
+    const Integer &n = public_key.GetModulus();
+    const Integer &e = public_key.GetPublicExponent();
 
     Integer b = a_exp_b_mod_c(client_secret, e, n);
 
@@ -125,7 +130,7 @@ int main(int argc, char *argv[])
     GenerateTestKeys(private_key, public_key, KEY_SIZE);
 
     // Alice create a blind message
-    Integer client_secret;
+    Integer client_secret = GenerateClientSecret(public_key);
     string message = "Hello world! How are you doing to day? It's a pretty nice day if i do say so myself1.";
     Integer original_hash = GenerateHash(message);
     Integer blinded = MessageBlinding(original_hash, public_key, client_secret);
