@@ -14,6 +14,11 @@ using std::string;
 using std::runtime_error;
 using namespace CryptoPP;
 
+#ifndef DEBUG
+    #define DEBUG 0
+#endif
+
+
 Integer GenerateHash(const string &message)
 {
     SHA512 hash;
@@ -22,7 +27,6 @@ Integer GenerateHash(const string &message)
     SecByteBlock orig((const byte*)message.c_str(), message.size());
 
     buff.resize(SHA512::DIGESTSIZE);
-    hash.CalculateDigest(buff, orig, orig.size());//why not a truncated digest?
     hash.CalculateTruncatedDigest(buff, buff.size(), orig, orig.size());
 
     Integer hashed_message(buff.data(), buff.size());
