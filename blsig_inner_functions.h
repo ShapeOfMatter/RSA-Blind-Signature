@@ -40,12 +40,12 @@ Integer MessageBlinding(const Integer &hashed_message, const RSA::PublicKey &pub
     const Integer &n = public_key.GetModulus();
     const Integer &e = public_key.GetPublicExponent();
 
-    Integer b = a_exp_b_mod_c(client_secret, e, n);//did i delete something important here?
+    Integer b = a_exp_b_mod_c(client_secret, e, n);
     Integer hidden_message = a_times_b_mod_c(hashed_message, b, n);
 
     #if DEBUG
-        //log "b" as well.
-        cout << "blinded hashed message: " << std::hex << hidden_message << endl;
+        cout << "Blinding factor: " << std::hex << b << endl;
+        cout << "Blinded hashed message: " << std::hex << hidden_message << endl;
     #endif
 
     return hidden_message;
