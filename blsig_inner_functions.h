@@ -51,7 +51,7 @@ Integer MessageBlinding(const Integer &hashed_message, const RSA::PublicKey &pub
     return hidden_message;
 }
 
-Integer MessageUnblinding(const Integer &blinded_signature, const RSA::PublicKey &public_key, const Integer &client_secret)
+Integer SignatureUnblinding(const Integer &blinded_signature, const RSA::PublicKey &public_key, const Integer &client_secret)
 {
     const Integer &n = public_key.GetModulus();
     const Integer &inverse_secret = client_secret.InverseMod(n);
@@ -65,7 +65,7 @@ Integer MessageUnblinding(const Integer &blinded_signature, const RSA::PublicKey
     return signed_unblinded;
 }
 
-Integer SigningAuthority(const RSA::PrivateKey &private_key, const Integer &blinded_hash, const AutoSeededRandomPool &rng_source)
+Integer SignBlindedMessage(const Integer &blinded_hash, const RSA::PrivateKey &private_key, const AutoSeededRandomPool &rng_source)
 {
     #if DEBUG
         cout << "Generating signature..." << endl;
@@ -81,9 +81,19 @@ Integer SigningAuthority(const RSA::PrivateKey &private_key, const Integer &blin
     return signed_message;
 }
 
-bool VerifySigning(const Integer &message, const Integer &original, const RSA::PublicKey &public_key)
+bool PreverifySignature(const Integer &signed_blined_hash, const Integer &blinded_hash, const RSA::PublicKey &public_key)
 {
-    return public_key.ApplyFunction(message) == original;
+    bool valid = public_key.ApplyFunction(signed_blinded_hash) == blinded_hash;
+
+    #if DEBUG
+        cout << "The blind message was" << (valid ? " " : " NOT ") << "properly signed." << endl;
+    #endif
+
+    return valid;
+}
+
+bool VerifySignature(const Integer &unblinded_signature, const Integer &hashed_message, const RSA::PublicKey &public_key)
+{
 }
 
 //add sig verificaiton.
