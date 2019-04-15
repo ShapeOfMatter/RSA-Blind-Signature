@@ -94,21 +94,15 @@ bool PreverifySignature(const Integer &signed_blined_hash, const Integer &blinde
 
 bool VerifySignature(const Integer &unblinded_signature, const Integer &hashed_message, const RSA::PublicKey &public_key)
 {
+    Integer signature_payload = public_key.ApplyFunction(unblinded_signature);
+    bool valid = hashed_message == signature_payload;
+
+    #if DEBUG
+        cout << "The signature contained message hash: " << std::hex << signature_payload << endl;
+        cout << "The signature is " << (valid ? "valid" : "INVALID") << "." << endl;
+    #endif
+
+    return valid;
 }
 
-//add sig verificaiton.
-
-    // Eve verification stage
-//    Integer message_hash = GenerateHash(message);
-//    Integer received_hash = public_key.ApplyFunction(signed_unblinded);
-//    cout << "Signature payload: " << received_hash << endl;
-//    if (message_hash != received_hash)
-//    {
-//        cout << "Verification failed" << endl;
-//        exit(EXIT_FAILURE);
-//    }
-
-//    cout << "Signature Verified" << endl;
-    // return success
-//    return 0;
 
