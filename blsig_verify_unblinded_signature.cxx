@@ -8,6 +8,10 @@
 #include "cryptopp810/cryptlib.h"
 #include "cryptopp810/nbtheory.h"
 
+#define DEBUG 0
+#include "blsig_common_functions.h"
+#include "blsig_inner_functions.h"
+
 using std::cout;
 using std::endl;
 using std::string;
@@ -16,17 +20,18 @@ using namespace CryptoPP;
 
 int main(int argc, char *argv[])
 {
-    // Eve verification stage
-    Integer message_hash = GenerateHash(message);
-    Integer received_hash = public_key.ApplyFunction(signed_unblinded);
-    cout << "Signature payload: " << received_hash << endl;
-    if (message_hash != received_hash)
+    Integer unblinded_signature; //Populate this from argv[1]
+    Integer hashed_message; //Populate this from argv[2]
+    RSA::PublicKey public_key; //Populate this from argv[3]
+    
+    if(VerifySignature(unblinded_signature, hashed_message, public_key))
     {
-        cout << "Verification failed" << endl;
-        exit(EXIT_FAILURE);
+        cout << "true" << endl;
+        return EXIT_SUCCESS;
     }
-
-    cout << "Signature Verified" << endl;
-    // return success
-    return 0;
+    else
+    {
+        std::cerr << "That is not a valid signature for the provided message." << endl;
+        return EXIT_FAILURE;
+    }
 }
