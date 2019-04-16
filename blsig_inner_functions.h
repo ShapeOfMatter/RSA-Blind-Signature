@@ -53,11 +53,6 @@ Integer SignatureUnblinding(const Integer &blinded_signature, const RSA::PublicK
 
 Integer SignBlindedMessage(const Integer &blinded_hash, const RSA::PrivateKey &private_key, const AutoSeededRandomPool &rng_source)
 {
-    #if DEBUG
-        std::cout << "Generating signature..." << std::endl;
-        std::cout << "Blinded Payload: " << std::hex << blinded_hash << std::endl;
-    #endif
-
     Integer signed_message = private_key.CalculateInverse(rng_source, blinded_hash);
 
     #if DEBUG
