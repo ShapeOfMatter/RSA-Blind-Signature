@@ -1,25 +1,10 @@
-#include <iostream>
-#include <stdexcept>
+#ifndef BLSIG_COMMON_H_INCLUDED
+# define BLSIG_COMMON_H_INCLUDED
+# include "blsig_includes.h"
 
-#include "cryptopp810/rsa.h"
-#include "cryptopp810/sha.h"
-#include "cryptopp810/osrng.h"
-#include "cryptopp810/integer.h"
-#include "cryptopp810/cryptlib.h"
-#include "cryptopp810/nbtheory.h"
-
-using std::cout;
-using std::endl;
-using std::string;
-using std::runtime_error;
 using namespace CryptoPP;
 
-#ifndef DEBUG
-    #define DEBUG 0
-#endif
-
-
-Integer GenerateHash(const string &message)
+Integer GenerateHash(const std::string &message)
 {
     SHA512 hash;
     SecByteBlock buff;
@@ -32,10 +17,12 @@ Integer GenerateHash(const string &message)
     Integer hashed_message(buff.data(), buff.size());
 
     #if DEBUG
-        cout << "Message: " << message << endl;
-        cout << "Hash: " << std::hex << hashed_message << endl;
+        std::cout << "Message: " << message << std::endl;
+        std::cout << "Hash: " << std::hex << hashed_message << std::endl;
     #endif
 
     return hashed_message;
 }
+
+#endif
 
