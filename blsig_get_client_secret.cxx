@@ -11,5 +11,5 @@ int main(int argc, char *argv[])
     Integer client_secret = GenerateClientSecret(public_key, rng_source);
     
     //cout << safe string version of client_secret.
-    return 0;
+    return EXIT_SUCCESS;
 }

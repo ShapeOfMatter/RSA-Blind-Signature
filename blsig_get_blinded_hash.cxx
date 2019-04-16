@@ -12,5 +12,5 @@ int main(int argc, char *argv[])
     Integer hidden_message = MessageBlinding(hashed_message, public_key, client_secret);
 
     // std::cout << safe string version of blinded hash.
-    return 0;
+    return EXIT_SUCCESS;
 }

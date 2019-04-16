@@ -12,6 +12,6 @@ int main(int argc, char *argv[])
     Integer signed_message = SignBlindedMessage(blinded_hash, private_key, rng_source);
     
     //std::cout << safe std::string version of signed_message.
-    return 0;
+    return EXIT_SUCCESS;
 }
 
