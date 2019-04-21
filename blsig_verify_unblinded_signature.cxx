@@ -4,10 +4,22 @@ using namespace CryptoPP;
 
 int main(int argc, char *argv[])
 {
-    Integer unblinded_signature; //Populate this from argv[1]
-    std::string message; //Populate this from argv[2]
-    RSA::PublicKey public_key; //Populate this from argv[3]
-    
+    if(4 != argc){
+        fprintf(std::cerr, "Incorrect useage of %s. Expected %i arguments; given %i.", argv[0], 4, argc);
+        return EXIT FAILURE;
+    }
+
+    try{
+        Integer unblinded_signature = Integer(argv[1]);
+        std::string message = argv[2];
+        RSA::PublicKey public_key = ReadPEMPublicKey(argv[3]); //Populate this from argv[3]
+    }
+    catch(std::runtime_error& e)
+    {
+        std::cerr << e.what();
+        return EXIT_FAILURE;
+    }
+
     Integer hashed_message = GenerateHash(message);
 
     if(VerifySignature(unblinded_signature, hashed_message, public_key))
