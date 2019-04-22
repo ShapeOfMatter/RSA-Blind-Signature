@@ -29,6 +29,19 @@ Integer GenerateHash(const std::string &message)
     return hashed_message;
 }
 
+std::string IntegerAsString(const Integer i, const RSA::PrivateKey &private_key)
+{
+    const Integer &n = private_key.getModulus();
+
+    std::string s = std::IntToString<Integer>(i, 16);
+
+    //Should we pad these to constant lenght based on the modulus of the private key? 
+    // - This would reveal the private key modulus, but that's the same as the public key modulus, right?
+    // - What actualy advantage would it have?
+    
+    return s;
+}
+
 bool LoadKeyBodyFrom(std::string file_name, std::regex r, ByteQueue &buff)
 {
     std::ifstream f(file_name.c_str());
