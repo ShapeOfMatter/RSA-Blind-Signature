@@ -1,11 +1,23 @@
 CXX=g++
 CXXFLAGS=-I. -Lcryptopp810 -lcryptopp -g
+PREFIX=bin/blsig_
 
-blind: blind.cxx
+all: $(PREFIX)get_client_secret
+all: $(PREFIX)get_blinded_hash
+all: $(PREFIX)get_blind_signature
+all: $(PREFIX)get_ublinded_signature
+all: $(PREFIX)verify_unblinded_signature
+
+$(PREFIX)%: %.cxx 
 	$(CXX) $< $(CXXFLAGS) -o bin/$@
 
-clean:
-	@rm -f $(DESTDIR)/*
+%.cxx: includes.h
 
-.PHONY: clean
+includes.h: common_functions.h
+includes.h: inner_functions.h
+
+clean:
+	rm -f $(PREFIX)*
+
+.PHONY: clean all
 
