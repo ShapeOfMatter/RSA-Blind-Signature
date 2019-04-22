@@ -4,7 +4,7 @@
 
 using namespace CryptoPP;
 
-Integer GenerateClientSecret(const RSA::PublicKey &public_key, const AutoSeededRandomPool &rng_source)
+Integer GenerateClientSecret(const RSA::PublicKey &public_key, AutoSeededRandomPool &rng_source)
 {
     const Integer &n = public_key.GetModulus();
 
@@ -51,7 +51,7 @@ Integer SignatureUnblinding(const Integer &blinded_signature, const RSA::PublicK
     return signed_unblinded;
 }
 
-Integer SignBlindedMessage(const Integer &blinded_hash, const RSA::PrivateKey &private_key, const AutoSeededRandomPool &rng_source)
+Integer SignBlindedMessage(const Integer &blinded_hash, const RSA::PrivateKey &private_key, AutoSeededRandomPool &rng_source)
 {
     Integer signed_message = private_key.CalculateInverse(rng_source, blinded_hash);
 
@@ -62,7 +62,7 @@ Integer SignBlindedMessage(const Integer &blinded_hash, const RSA::PrivateKey &p
     return signed_message;
 }
 
-bool PreverifySignature(const Integer &signed_blined_hash, const Integer &blinded_hash, const RSA::PublicKey &public_key)
+bool PreverifySignature(const Integer &signed_blinded_hash, const Integer &blinded_hash, const RSA::PublicKey &public_key)
 {
     bool valid = public_key.ApplyFunction(signed_blinded_hash) == blinded_hash;
 

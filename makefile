@@ -9,7 +9,7 @@ all: $(PREFIX)get_ublinded_signature
 all: $(PREFIX)verify_unblinded_signature
 
 $(PREFIX)%: %.cxx 
-	$(CXX) $< $(CXXFLAGS) -o bin/$@
+	$(CXX) $< $(CXXFLAGS) -o $@
 
 %.cxx: includes.h
 

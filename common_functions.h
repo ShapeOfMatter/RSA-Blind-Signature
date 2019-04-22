@@ -29,29 +29,16 @@ Integer GenerateHash(const std::string &message)
     return hashed_message;
 }
 
-std::string IntegerAsString(const Integer i, const RSA::PrivateKey &private_key)
-{
-    const Integer &n = private_key.getModulus();
-
-    std::string s = std::IntToString<Integer>(i, 16);
-
-    //Should we pad these to constant lenght based on the modulus of the private key? 
-    // - This would reveal the private key modulus, but that's the same as the public key modulus, right?
-    // - What actualy advantage would it have?
-    
-    return s;
-}
-
 bool LoadKeyBodyFrom(std::string file_name, std::regex r, ByteQueue &buff)
 {
     std::ifstream f(file_name.c_str());
     if(f.fail()){
-        std::cerr << "Failed to open file '" << filename << "'.";
+        std::cerr << "Failed to open file '" << file_name << "'.";
         return false;
     }
-    std::string contents(std::istreambuf_iterator<char>(f), std::istreambuf_iterator<char>());
+    std::string contents(std::istreambuf_iterator<char>(f), (std::istreambuf_iterator<char>())); //see https://stackoverflow.com/questions/25517397/create-stdstring-from-stdistreambuf-iterator-strange-syntax-quirk
 
-    std::cmatch key_search;
+    std::smatch key_search;
     if(std::regex_match(contents, key_search, r)){
         std::string key_body = key_search.str(1);
 
@@ -68,7 +55,7 @@ bool LoadKeyBodyFrom(std::string file_name, std::regex r, ByteQueue &buff)
     }
     else
     {
-        std::cerr << "Couldn't find a PEM key in file '" << filename << "'.";
+        std::cerr << "Couldn't find a PEM key in file '" << file_name << "'.";
         return false;
     }
 }
@@ -76,16 +63,16 @@ bool LoadKeyBodyFrom(std::string file_name, std::regex r, ByteQueue &buff)
 RSA::PublicKey ReadPEMPublicKey(std::string file_name)
 {
     ByteQueue buff;
-    if(LoadKeyBodyFrom(file_name, PEM_Key_Regex_Public, &buff)){
+    if(LoadKeyBodyFrom(file_name, PEM_Key_Regex_Public, buff)){
         RSA::PublicKey public_key;
-        public_key.BERDDecodePublicKey(buff, false, bQueue.MaxRetrievable());
+        public_key.BERDecodePublicKey(buff, false, buff.MaxRetrievable());
 
-        if(bQueue.IsEmpty()){
+        if(buff.IsEmpty()){
             return public_key;
         }
         else
         {
-            throw std::runtime_error("Something went wrong reading the Public Key: The ByteQueue was not exhausted.")
+            throw std::runtime_error("Something went wrong reading the Public Key: The ByteQueue was not exhausted.");
         }
     }
     else
@@ -97,16 +84,16 @@ RSA::PublicKey ReadPEMPublicKey(std::string file_name)
 RSA::PrivateKey ReadPEMPrivateKey(std::string file_name)
 {
     ByteQueue buff;
-    if(LoadKeyBodyFrom(file_name, PEM_Key_Regex_Private, &buff)){
+    if(LoadKeyBodyFrom(file_name, PEM_Key_Regex_Private, buff)){
         RSA::PrivateKey private_key;
-        private_key.BERDDecodePrivateKey(buff, false, bQueue.MaxRetrievable());
+        private_key.BERDecodePrivateKey(buff, false, buff.MaxRetrievable());
 
-        if(bQueue.IsEmpty()){
+        if(buff.IsEmpty()){
             return private_key;
         }
         else
         {
-            throw std::runtime_error("Something went wrong reading the Private Key: The ByteQueue was not exhausted.")
+            throw std::runtime_error("Something went wrong reading the Private Key: The ByteQueue was not exhausted.");
         }
     }
     else
