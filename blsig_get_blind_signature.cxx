@@ -6,12 +6,24 @@ static AutoSeededRandomPool rng_source;
 
 int main(int argc, char *argv[])
 {
-    std::string blinded_hash; //Populate this from argv[1]
-    RSA::PublicKey public_key; //Populate this from argv[2]
+    if(2 != argc){
+        fprintf(std::cerr, "Incorrect useage of %s. Expected %i arguments; given %i.", argv[0], 2, argc);
+        return EXIT FAILURE;
+    }
 
+    try{
+        std::string blinded_hash = argv[1];
+        RSA::PublicKey public_key = ReadPEMPublicKey(argv[2]);
+    }
+    catch(std::runtime_error& e)
+    {
+        std::cerr << e.what();
+        return EXIT_FAILURE;
+    }
+    
     Integer signed_message = SignBlindedMessage(blinded_hash, private_key, rng_source);
     
-    //std::cout << safe std::string version of signed_message.
+    std::cout << std::hex << signed_message;
     return EXIT_SUCCESS;
 }
 

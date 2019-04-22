@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
     try{
         Integer unblinded_signature = Integer(argv[1]);
         std::string message = argv[2];
-        RSA::PublicKey public_key = ReadPEMPublicKey(argv[3]); //Populate this from argv[3]
+        RSA::PublicKey public_key = ReadPEMPublicKey(argv[3]);
     }
     catch(std::runtime_error& e)
     {
