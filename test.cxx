@@ -1,8 +1,7 @@
-#include "blsig_includes.h"
+#define DEBUG 1
+#include "includes.h"
 
 using namespace CryptoPP;
-
-#define DEBUG 1
 
 static AutoSeededRandomPool rng_source;
 

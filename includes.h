@@ -15,7 +15,7 @@
 # include "cryptopp810/cryptlib.h"
 # include "cryptopp810/nbtheory.h"
 
-# include "blsig_common_functions.h"
-# include "blsig_inner_functions.h"
+# include "common_functions.h"
+# include "inner_functions.h"
 
 #endif

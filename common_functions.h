@@ -1,6 +1,6 @@
 #ifndef BLSIG_COMMON_H_INCLUDED
 # define BLSIG_COMMON_H_INCLUDED
-# include "blsig_includes.h"
+# include "includes.h"
 
 using namespace CryptoPP;
 
