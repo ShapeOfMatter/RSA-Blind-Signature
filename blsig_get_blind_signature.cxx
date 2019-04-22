@@ -6,8 +6,8 @@ static AutoSeededRandomPool rng_source;
 
 int main(int argc, char *argv[])
 {
-    if(2 != argc){
-        fprintf(std::cerr, "Incorrect useage of %s. Expected %i arguments; given %i.", argv[0], 2, argc);
+    if(3 != argc){
+        fprintf(std::cerr, "Incorrect useage of %s. Expected %i arguments; given %i.", argv[0], 3, argc);
         return EXIT FAILURE;
     }
 

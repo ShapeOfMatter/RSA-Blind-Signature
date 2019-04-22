@@ -4,8 +4,8 @@ using namespace CryptoPP;
 
 int main(int argc, char *argv[])
 {
-    if(3 != argc){
-        fprintf(std::cerr, "Incorrect useage of %s. Expected %i arguments; given %i.", argv[0], 3, argc);
+    if(4 != argc){
+        fprintf(std::cerr, "Incorrect useage of %s. Expected %i arguments; given %i.", argv[0], 4, argc);
         return EXIT FAILURE;
     }
 
