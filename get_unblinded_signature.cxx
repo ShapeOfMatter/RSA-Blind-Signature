@@ -2,18 +2,24 @@
 
 using namespace CryptoPP;
 
+#define ARGUMENT_COUNT 4
+static Integer blinded_signature;
+static Integer blinded_hash;
+static Integer client_secret;
+static RSA::PublicKey public_key;
+
 int main(int argc, char *argv[])
 {
-    if(5 != argc){
-        fprintf(std::cerr, "Incorrect useage of %s. Expected %i arguments; given %i.", argv[0], 5, argc);
-        return EXIT FAILURE;
+    if(ARGUMENT_COUNT != --argc){
+        std::cerr << "Incorrect useage of " << argv[0] << ". Expected " << ARGUMENT_COUNT << "  arguments; given " << argc << ".";
+        return EXIT_FAILURE;
     }
 
     try{
-        Integer blinded_signature = Integer(argv[1]);
-        Integer blinded_hash = Integer(argv[2]);
-        Integer client_secret = Integer(argv[3]);
-        RSA::PublicKey public_key = ReadPEMPublicKey(argv[4]);
+        blinded_signature = Integer(argv[1]);
+        blinded_hash = Integer(argv[2]);
+        client_secret = Integer(argv[3]);
+        public_key = ReadPEMPublicKey(argv[4]);
     }
     catch(std::runtime_error& e)
     {

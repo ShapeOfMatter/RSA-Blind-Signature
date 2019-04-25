@@ -5,7 +5,7 @@ PREFIX=bin/blsig_
 all: $(PREFIX)get_client_secret
 all: $(PREFIX)get_blinded_hash
 all: $(PREFIX)get_blind_signature
-all: $(PREFIX)get_ublinded_signature
+all: $(PREFIX)get_unblinded_signature
 all: $(PREFIX)verify_unblinded_signature
 
 $(PREFIX)%: %.cxx 

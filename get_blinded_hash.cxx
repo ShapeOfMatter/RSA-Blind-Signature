@@ -2,17 +2,22 @@
 
 using namespace CryptoPP;
 
+#define ARGUMENT_COUNT 3
+static std::string message;
+static Integer client_secret;
+static RSA::PublicKey public_key;
+
 int main(int argc, char *argv[])
 {
-    if(4 != argc){
-        fprintf(std::cerr, "Incorrect useage of %s. Expected %i arguments; given %i.", argv[0], 4, argc);
-        return EXIT FAILURE;
+    if(ARGUMENT_COUNT != --argc){
+        std::cerr << "Incorrect useage of " << argv[0] << ". Expected " << ARGUMENT_COUNT << "  arguments; given " << argc << ".";
+        return EXIT_FAILURE;
     }
-
+    
     try{
-        std::string message = argv[1];
-        Integer client_secret = Integer(argv[2]);
-        RSA::PublicKey public_key = ReadPEMPublicKey(argv[3]);
+        message = argv[1];
+        client_secret = Integer(argv[2]);
+        public_key = ReadPEMPublicKey(argv[3]);
     }
     catch(std::runtime_error& e)
     {

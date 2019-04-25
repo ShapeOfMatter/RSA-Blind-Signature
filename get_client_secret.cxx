@@ -4,16 +4,16 @@ using namespace CryptoPP;
 
 static AutoSeededRandomPool rng_source;
 
-#define ARGUMENT_COUNT 2 
+#define ARGUMENT_COUNT 1
+static RSA::PublicKey public_key;
 
 int main(int argc, char *argv[])
 {
-    if(ARGUMENT_COUNT != argc){
+    if(ARGUMENT_COUNT != --argc){
         std::cerr << "Incorrect useage of " << argv[0] << ". Expected " << ARGUMENT_COUNT << "  arguments; given " << argc << ".";
         return EXIT_FAILURE;
     }
 	
-	RSA::PublicKey public_key;
     try{
         public_key = ReadPEMPublicKey(argv[1]);
     }

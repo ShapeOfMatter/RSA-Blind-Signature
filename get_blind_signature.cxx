@@ -4,16 +4,20 @@ using namespace CryptoPP;
 
 static AutoSeededRandomPool rng_source;
 
+#define ARGUMENT_COUNT 2
+static Integer blinded_hash;
+static RSA::PrivateKey private_key;
+
 int main(int argc, char *argv[])
 {
-    if(3 != argc){
-        fprintf(std::cerr, "Incorrect useage of %s. Expected %i arguments; given %i.", argv[0], 3, argc);
-        return EXIT FAILURE;
+    if(ARGUMENT_COUNT != --argc){
+        std::cerr << "Incorrect useage of " << argv[0] << ". Expected " << ARGUMENT_COUNT << "  arguments; given " << argc << ".";
+        return EXIT_FAILURE;
     }
 
     try{
-        std::string blinded_hash = argv[1];
-        RSA::PublicKey public_key = ReadPEMPublicKey(argv[2]);
+        blinded_hash = Integer(argv[1]);
+        private_key = ReadPEMPrivateKey(argv[2]);
     }
     catch(std::runtime_error& e)
     {
