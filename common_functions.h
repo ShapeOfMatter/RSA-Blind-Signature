@@ -5,9 +5,9 @@
 using namespace CryptoPP;
 
 static const std::regex PEM_Key_Regex_Public(
-    "-----BEGIN (?:RSA )?PUBLIC KEY-----[\r\n]+([^-]*)[\r\n]+-----END (?:RSA )?PUBLIC KEY-----");
+    "-----BEGIN (?:RSA )?PUBLIC KEY-----[\\r\\n]+([^-]*)[\\r\\n]+-----END (?:RSA )?PUBLIC KEY-----");
 static const std::regex PEM_Key_Regex_Private(
-    "-----BEGIN (?:RSA )?PRIVATE KEY-----[\r\n]+([^-]*)[\r\n]+-----END (?:RSA )?PRIVATE KEY-----");
+    "-----BEGIN (?:RSA )?PRIVATE KEY-----[\\r\\n]+([^-]*)[\\r\\n]+-----END (?:RSA )?PRIVATE KEY-----");
 
 Integer GenerateHash(const std::string &message)
 {
@@ -33,7 +33,7 @@ bool LoadKeyBodyFrom(std::string file_name, std::regex r, ByteQueue &buff)
 {
     std::ifstream f(file_name.c_str());
     if(f.fail()){
-        std::cerr << "Failed to open file '" << file_name << "'.";
+        std::cerr << "Failed to open file '" << file_name << "'." << std::endl;
         return false;
     }
     std::string contents(std::istreambuf_iterator<char>(f), (std::istreambuf_iterator<char>())); //see https://stackoverflow.com/questions/25517397/create-stdstring-from-stdistreambuf-iterator-strange-syntax-quirk
@@ -43,7 +43,7 @@ bool LoadKeyBodyFrom(std::string file_name, std::regex r, ByteQueue &buff)
         std::string key_body = key_search.str(1);
 
         #if DEBUG
-            std::cout << "Found key body in file "<< file_name << ": " << key_body.length() << " characters.";
+            std::cout << "Found key body in file "<< file_name << ": " << key_body.length() << " characters." << std::endl;
         #endif
 
         Base64Decoder decoder;            
@@ -55,7 +55,7 @@ bool LoadKeyBodyFrom(std::string file_name, std::regex r, ByteQueue &buff)
     }
     else
     {
-        std::cerr << "Couldn't find a PEM key in file '" << file_name << "'.";
+        std::cerr << "Couldn't find a PEM key in file '" << file_name << "'." << std::endl;
         return false;
     }
 }
