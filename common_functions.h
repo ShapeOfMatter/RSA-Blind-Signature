@@ -43,7 +43,7 @@ bool LoadKeyBodyFrom(std::string file_name, std::regex r, ByteQueue &buff)
         std::string key_body = key_search.str(1);
 
         #if DEBUG
-            fprintf(std::cout, "Found key body in file '%s': %d characters.", filename, key_body.length());
+            std::cout << "Found key body in file "<< file_name << ": " << key_body.length() << " characters.";
         #endif
 
         Base64Decoder decoder;            
