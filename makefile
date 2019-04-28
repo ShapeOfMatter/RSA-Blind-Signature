@@ -2,6 +2,7 @@ CXX=g++
 CXXFLAGS=-I. -Lcryptopp810 -lcryptopp -static
 PREFIX=bin/blsig_
 
+
 all: $(PREFIX)get_client_secret
 all: $(PREFIX)get_blinded_hash
 all: $(PREFIX)get_blind_signature
