@@ -13,7 +13,7 @@ $(PREFIX)%: %.cxx
 	$(CXX) $< $(CXXFLAGS) -o $@
 
 test: test.cxx
-	$(CXX) $< $(CXXFLAGS) -g -o $@
+	$(CXX) $< $(CXXFLAGS) -g -o $(PREFIX)$@
 
 %.cxx: includes.h
 
