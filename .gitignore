@@ -40,3 +40,5 @@ cryptopp*
 # Custom:
 bin/*
 cryptopp810
+scratch
+
