@@ -20,5 +20,6 @@
 
 # include "common_functions.h"
 # include "inner_functions.h"
+# include "pem-rd.h"
 
 #endif

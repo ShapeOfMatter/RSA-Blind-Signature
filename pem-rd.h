@@ -1,3 +1,7 @@
+#ifndef BLSIG_PEM_H_INCLUDED
+# define BLSIG_PEM_H_INCLUDED
+# include "includes.h"
+
 // pem-rd.cpp - PEM read routines. Written and placed in the public domain by Jeffrey Walton
 //              Copyright assigned to the Crypto++ project.
 //
@@ -15,26 +19,18 @@
 
 #include <cctype>
 
-#include "cryptlib.h"
-#include "secblock.h"
-#include "nbtheory.h"
-#include "gfpcrypt.h"
-#include "camellia.h"
-#include "smartptr.h"
-#include "filters.h"
-#include "base64.h"
-#include "queue.h"
-#include "modes.h"
-#include "asn.h"
-#include "aes.h"
-#include "idea.h"
-#include "des.h"
-#include "hex.h"
-
-#include "pem-com.h"
-
-#define CRYPTOPP_ENABLE_NAMESPACE_WEAK 1
-#include "md5.h"
+#include "cryptopp810/secblock.h"
+#include "cryptopp810/gfpcrypt.h"
+#include "cryptopp810/camellia.h"
+#include "cryptopp810/smartptr.h"
+#include "cryptopp810/filters.h"
+#include "cryptopp810/queue.h"
+#include "cryptopp810/modes.h"
+#include "cryptopp810/asn.h"
+#include "cryptopp810/aes.h"
+#include "cryptopp810/idea.h"
+#include "cryptopp810/des.h"
+#include "cryptopp810/hex.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -540,3 +536,6 @@ SecByteBlock::const_iterator Search(const SecByteBlock& source, const SecByteBlo
 }
 
 NAMESPACE_END
+
+#endif
+
