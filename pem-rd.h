@@ -98,7 +98,7 @@ static const SecByteBlock SBB_PROC_TYPE_ENC(StringToSecByteBlock(LBL_PROC_TYPE_E
 //////////////////////////////////////////////////////////////////////////////
 
 static size_t PEM_ReadLine(BufferedTransformation& source, SecByteBlock& line, SecByteBlock& ending);
-
+static PEM_Type PEM_GetType(const BufferedTransformation& bt);
 static PEM_Type PEM_GetType(const SecByteBlock& sb);
 
 static void PEM_StripEncapsulatedBoundary(BufferedTransformation& bt, const SecByteBlock& pre, const SecByteBlock& post);
@@ -107,6 +107,14 @@ static void PEM_StripEncapsulatedBoundary(SecByteBlock& sb, const SecByteBlock& 
 static inline SecByteBlock::const_iterator Search(const SecByteBlock& source, const SecByteBlock& target);
 
 static void PEM_LoadPublicKey(BufferedTransformation& bt, X509PublicKey& key, bool subjectInfo = false);
+static void PEM_LoadPrivateKey(BufferedTransformation& src, PKCS8PrivateKey& key, bool subjectInfo);
+
+static void PEM_NextObject(BufferedTransformation& src, BufferedTransformation& dest);
+
+static void PEM_Base64Decode(BufferedTransformation& source, BufferedTransformation& dest);
+
+static void PEM_WriteLine(BufferedTransformation& bt, const std::string& line);
+static void PEM_WriteLine(BufferedTransformation& bt, const SecByteBlock& line);
 
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
@@ -274,7 +282,7 @@ void PEM_StripEncapsulatedBoundary(BufferedTransformation& bt, const SecByteBloc
     temp.TransferTo(bt);
 }
 
-void PEM_NextObject(BufferedTransformation& src, BufferedTransformation& dest, bool trimTrailing)
+void PEM_NextObject(BufferedTransformation& src, BufferedTransformation& dest)
 {
     if(!src.AnyRetrievable())
         return;
@@ -449,18 +457,6 @@ void PEM_NextObject(BufferedTransformation& src, BufferedTransformation& dest, b
     dest.MessageEnd();
 
     src.Skip(used + adjust);
-
-    if(trimTrailing)
-    {
-        while (src.AnyRetrievable())
-        {
-            byte b;
-            src.Peek(b);
-
-            if(!isspace(b)) break;
-            src.Skip(1);
-        }
-    }
 }
 
 size_t PEM_ReadLine(BufferedTransformation& source, SecByteBlock& line, SecByteBlock& ending)
@@ -533,6 +529,25 @@ size_t PEM_ReadLine(BufferedTransformation& source, SecByteBlock& line, SecByteB
 SecByteBlock::const_iterator Search(const SecByteBlock& source, const SecByteBlock& target)
 {
     return std::search(source.begin(), source.end(), target.begin(), target.end());
+}
+
+void PEM_Base64Decode(BufferedTransformation& source, BufferedTransformation& dest)
+{
+    Base64Decoder decoder(new Redirector(dest));
+    source.TransferTo(decoder);
+    decoder.MessageEnd();
+}
+
+void PEM_WriteLine(BufferedTransformation& bt, const SecByteBlock& line)
+{
+    bt.Put(line.data(), line.size());
+    bt.Put(reinterpret_cast<const byte*>(RFC1421_EOL.data()), RFC1421_EOL.size());
+}
+
+void PEM_WriteLine(BufferedTransformation& bt, const std::string& line)
+{
+    bt.Put(reinterpret_cast<const byte*>(line.data()), line.size());
+    bt.Put(reinterpret_cast<const byte*>(RFC1421_EOL.data()), RFC1421_EOL.size());
 }
 
 NAMESPACE_END
