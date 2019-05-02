@@ -39,7 +39,7 @@ bool LoadKeyBodyFrom(std::string file_name, std::regex r, ByteQueue &buff)
     std::string contents(std::istreambuf_iterator<char>(f), (std::istreambuf_iterator<char>())); //see https://stackoverflow.com/questions/25517397/create-stdstring-from-stdistreambuf-iterator-strange-syntax-quirk
 
     std::smatch key_search;
-    if(std::regex_match(contents, key_search, r)){
+    if(std::regex_search(contents, key_search, r)){
         std::string key_body = key_search.str(1);
 
         #if DEBUG
