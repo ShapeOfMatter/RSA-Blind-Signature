@@ -1,28 +1,25 @@
 CXX=g++
 CXXFLAGS=-I. -Lcryptopp810 -lcryptopp -static
-PREFIX=bin/blsig_
-
+OUTDIR=bin/
+PREFIX=$(OUTDIR)blsig_
+INCLUDES=includes.h common_functions.h inner_functions.h pem-rd.h
 
 all: $(PREFIX)get_client_secret
 all: $(PREFIX)get_blinded_hash
 all: $(PREFIX)get_blind_signature
 all: $(PREFIX)get_unblinded_signature
 all: $(PREFIX)verify_unblinded_signature
-all: test
+all: $(OUTDIR)test
 
-$(PREFIX)%: %.cxx 
+$(PREFIX)%: %.cxx $(INCLUDES)
 	$(CXX) $< $(CXXFLAGS) -o $@
 
-test: test.cxx
-	$(CXX) $< $(CXXFLAGS) -g -o $(PREFIX)$@
-
-%.cxx: includes.h
-
-includes.h: common_functions.h
-includes.h: inner_functions.h
+$(OUTDIR)test: test.cxx $(INCLUDES)
+	$(CXX) $< $(CXXFLAGS) -g -o $@
 
 clean:
 	rm -f $(PREFIX)*
+	rm $(OUTDIR)test
 
 .PHONY: clean all
 
