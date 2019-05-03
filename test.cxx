@@ -5,31 +5,24 @@ using namespace CryptoPP;
 
 static AutoSeededRandomPool rng_source;
 
-void GenerateTestKeys(RSA::PrivateKey &private_key, RSA::PublicKey &public_key, size_t key_size)
-{
-    #if DEBUG
-        std::cout << "Generating Keys..." << std::endl;
-    #endif
-
-    private_key.GenerateRandomWithKeySize(rng_source, key_size);
-    public_key = RSA::PublicKey(private_key);
-
-    #if DEBUG
-        const Integer &n = public_key.GetModulus();
-        const Integer &e = public_key.GetPublicExponent();
-        const Integer &d = private_key.GetPrivateExponent();
-
-        std::cout << "Modulus: " << std::hex << n << std::endl;
-        std::cout << "Public Exponent: " << std::hex << e << std::endl;
-    #endif
-}
 int main(int argc, char *argv[])
 {
+    if(0 == std::system(NULL)
+            || 0 != std::system("which openssl")
+            || 0 != std::system("which rm")){
+        std::cerr << "The test script will not work on this system." << std::endl;
+        exit(EXIT_FAILURE);
+    }
+
+    std::system("openssl genrsa -out scratch/._blsig_test_rsa_key_priv.pem 2048");
+    std::system("openssl rsa -in scratch/._blsig_test_rsa_key_priv.pem -out scratch/._blsig_test_rsa_key_pub.pem -pubout");
+
+    FileSource public_key_file("scratch/._blsig_test_rsa_key_pub.pem", true);
+    FileSource private_key_file("scratch/._blsig_test_rsa_key_priv.pem", true);
     RSA::PublicKey public_key;
     RSA::PrivateKey private_key;
-
-    // generate public and private keys
-    GenerateTestKeys(private_key, public_key, 2048);
+    PEM_Load(public_key_file, public_key);
+    PEM_Load(private_key_file, private_key);
 
     // Alice create a blind message
     Integer client_secret = GenerateClientSecret(public_key, rng_source);

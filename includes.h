@@ -12,6 +12,7 @@
 
 # include "cryptopp810/base64.h"
 # include "cryptopp810/cryptlib.h"
+# include "cryptopp810/files.h"
 # include "cryptopp810/integer.h"
 # include "cryptopp810/nbtheory.h"
 # include "cryptopp810/osrng.h"
