@@ -29,77 +29,21 @@ Integer GenerateHash(const std::string &message)
     return hashed_message;
 }
 
-bool LoadKeyBodyFrom(std::string file_name, std::regex r, ByteQueue &buff)
-{
-    std::ifstream f(file_name.c_str());
-    if(f.fail()){
-        std::cerr << "Failed to open file '" << file_name << "'." << std::endl;
-        return false;
-    }
-    std::string contents(std::istreambuf_iterator<char>(f), (std::istreambuf_iterator<char>())); //see https://stackoverflow.com/questions/25517397/create-stdstring-from-stdistreambuf-iterator-strange-syntax-quirk
-
-    std::smatch key_search;
-    if(std::regex_search(contents, key_search, r)){
-        std::string key_body = key_search.str(1);
-
-        #if DEBUG
-            std::cout << "Found key body in file "<< file_name << ": " << key_body.length() << " characters." << std::endl;
-        #endif
-
-        Base64Decoder decoder;            
-        decoder.Attach(new Redirector(buff));
-        decoder.Put((const byte*)key_body.data(), key_body.length());
-        decoder.MessageEnd();
-
-        return true;
-    }
-    else
-    {
-        std::cerr << "Couldn't find a PEM key in file '" << file_name << "'." << std::endl;
-        return false;
-    }
-}
-
 RSA::PublicKey ReadPEMPublicKey(std::string file_name)
 {
-    ByteQueue buff;
-    if(LoadKeyBodyFrom(file_name, PEM_Key_Regex_Public, buff)){
-        RSA::PublicKey public_key;
-        public_key.BERDecodePublicKey(buff, false, buff.MaxRetrievable());
-
-        if(buff.IsEmpty()){
-            return public_key;
-        }
-        else
-        {
-            throw std::runtime_error("Something went wrong reading the Public Key: The ByteQueue was not exhausted.");
-        }
-    }
-    else
-    {
-        throw std::runtime_error("Failed to read the Public Key.");
-    }
+    RSA::PublicKey public_key;
+    FileSource public_key_file(file_name);
+    PEM_Load(public_key_file, public_key);
+    return public_key;
 }
 
 RSA::PrivateKey ReadPEMPrivateKey(std::string file_name)
 {
-    ByteQueue buff;
-    if(LoadKeyBodyFrom(file_name, PEM_Key_Regex_Private, buff)){
         RSA::PrivateKey private_key;
-        private_key.BERDecodePrivateKey(buff, false, buff.MaxRetrievable());
-
-        if(buff.IsEmpty()){
-            return private_key;
-        }
-        else
-        {
-            throw std::runtime_error("Something went wrong reading the Private Key: The ByteQueue was not exhausted.");
-        }
-    }
-    else
-    {
-        throw std::runtime_error("Failed to read the Private Key.");
-    }
+        FileSource private_key_file(file_name);
+        PEM_Load(private_key_file, private_key);
+        return private_key;
 }
+
 #endif
 

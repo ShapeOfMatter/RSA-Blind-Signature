@@ -17,12 +17,8 @@ int main(int argc, char *argv[])
     std::system("openssl genrsa -out scratch/._blsig_test_rsa_key_priv.pem 2048");
     std::system("openssl rsa -in scratch/._blsig_test_rsa_key_priv.pem -out scratch/._blsig_test_rsa_key_pub.pem -pubout");
 
-    FileSource public_key_file("scratch/._blsig_test_rsa_key_pub.pem", true);
-    FileSource private_key_file("scratch/._blsig_test_rsa_key_priv.pem", true);
-    RSA::PublicKey public_key;
-    RSA::PrivateKey private_key;
-    PEM_Load(public_key_file, public_key);
-    PEM_Load(private_key_file, private_key);
+    RSA::PublicKey public_key = ReadPEMPublicKey("scratch/._blsig_test_rsa_key_pub.pem", true);
+    RSA::PrivateKey private_key = ReadPEMPrivateKey("scratch/._blsig_test_rsa_key_priv.pem", true);
 
     // Alice create a blind message
     Integer client_secret = GenerateClientSecret(public_key, rng_source);

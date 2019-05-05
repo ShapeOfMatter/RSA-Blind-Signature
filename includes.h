@@ -19,8 +19,8 @@
 # include "cryptopp810/rsa.h"
 # include "cryptopp810/sha.h"
 
+# include "pem-rd.h"
 # include "common_functions.h"
 # include "inner_functions.h"
-# include "pem-rd.h"
 
 #endif
