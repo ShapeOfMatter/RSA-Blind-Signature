@@ -32,7 +32,7 @@ Integer GenerateHash(const std::string &message)
 RSA::PublicKey ReadPEMPublicKey(std::string file_name)
 {
     RSA::PublicKey public_key;
-    FileSource public_key_file(file_name);
+    FileSource public_key_file(file_name.c_str(), true);
     PEM_Load(public_key_file, public_key);
     return public_key;
 }
@@ -40,7 +40,7 @@ RSA::PublicKey ReadPEMPublicKey(std::string file_name)
 RSA::PrivateKey ReadPEMPrivateKey(std::string file_name)
 {
         RSA::PrivateKey private_key;
-        FileSource private_key_file(file_name);
+        FileSource private_key_file(file_name.c_str(), true);
         PEM_Load(private_key_file, private_key);
         return private_key;
 }
