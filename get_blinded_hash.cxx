@@ -10,7 +10,7 @@ static RSA::PublicKey public_key;
 int main(int argc, char *argv[])
 {
     if(ARGUMENT_COUNT != --argc){
-        std::cerr << "Incorrect useage of " << argv[0] << ". Expected " << ARGUMENT_COUNT << "  arguments; given " << argc << ".";
+        std::cerr << "Incorrect useage of " << argv[0] << ". Expected " << ARGUMENT_COUNT << "  arguments; given " << argc << "." << std::endl;
         return EXIT_FAILURE;
     }
     
@@ -21,13 +21,13 @@ int main(int argc, char *argv[])
     }
     catch(std::runtime_error& e)
     {
-        std::cerr << e.what();
+        std::cerr << e.what() << std::endl;
         return EXIT_FAILURE;
     }
     
     Integer hashed_message = GenerateHash(message);
     Integer hidden_message = MessageBlinding(hashed_message, public_key, client_secret);
 
-    std::cout << std::hex << hidden_message;
+    std::cout << std::hex << hidden_message << std::endl;
     return EXIT_SUCCESS;
 }
