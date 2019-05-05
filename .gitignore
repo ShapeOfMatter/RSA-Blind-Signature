@@ -36,3 +36,9 @@ cryptopp*
 
 # VS Code
 .vscode/
+
+# Custom:
+bin/*
+cryptopp810
+scratch
+
