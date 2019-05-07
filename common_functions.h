@@ -25,7 +25,7 @@ Integer GenerateHash(const std::string &message)
 
     #if DEBUG
         std::cout << "Message: " << message << std::endl;
-        std::cout << "Hash: " << std::hex << hashed_message << std::endl;
+        std::cout << "Hash: " << std::hex << hashed_message << std::dec << std::endl;
     #endif
 
     return hashed_message;
@@ -46,10 +46,10 @@ RSA::PublicKey ReadPEMPublicKey(std::string file_name)
  */
 RSA::PrivateKey ReadPEMPrivateKey(std::string file_name)
 {
-        RSA::PrivateKey private_key;
-        FileSource private_key_file(file_name.c_str(), true);
-        PEM_Load(private_key_file, private_key);
-        return private_key;
+    RSA::PrivateKey private_key;
+    FileSource private_key_file(file_name.c_str(), true);
+    PEM_Load(private_key_file, private_key);
+    return private_key;
 }
 
 #endif

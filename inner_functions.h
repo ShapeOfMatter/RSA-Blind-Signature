@@ -20,7 +20,7 @@ Integer GenerateClientSecret(const RSA::PublicKey &public_key, AutoSeededRandomP
     } while (!RelativelyPrime(client_secret, n));
 
     #if DEBUG
-        std::cout << "Random Client Secret: " << std::hex << client_secret << std::endl;
+        std::cout << "Random Client Secret: " << std::hex << client_secret << std::dec << std::endl;
     #endif
 
     return client_secret;
@@ -37,8 +37,8 @@ Integer MessageBlinding(const Integer &hashed_message, const RSA::PublicKey &pub
     Integer hidden_message = a_times_b_mod_c(hashed_message, b, n);
 
     #if DEBUG
-        std::cout << "Blinding factor: " << std::hex << b << std::endl;
-        std::cout << "Blinded hashed message: " << std::hex << hidden_message << std::endl;
+        std::cout << "Blinding factor: " << std::hex << b << std::dec << std::endl;
+        std::cout << "Blinded hashed message: " << std::hex << hidden_message << std::dec << std::endl;
     #endif
 
     return hidden_message;
@@ -54,7 +54,7 @@ Integer SignatureUnblinding(const Integer &blinded_signature, const RSA::PublicK
     Integer signed_unblinded = a_times_b_mod_c(blinded_signature, inverse_secret, n);
 
     #if DEBUG
-        std::cout << "Signed Unblinded: " << std::hex << signed_unblinded << std::endl;
+        std::cout << "Signed Unblinded: " << std::hex << signed_unblinded << std::dec << std::endl;
     #endif
 
     return signed_unblinded;
@@ -69,7 +69,7 @@ Integer SignBlindedMessage(const Integer &blinded_hash, const RSA::PrivateKey &p
     Integer signed_message = private_key.CalculateInverse(rng_source, blinded_hash);
 
     #if DEBUG
-        std::cout << "Signed Message: " << std::hex << signed_message << std::endl;
+        std::cout << "Signed Message: " << std::hex << signed_message << std::dec << std::endl;
     #endif
 
     return signed_message;
@@ -98,7 +98,7 @@ bool VerifySignature(const Integer &unblinded_signature, const Integer &hashed_m
     bool valid = hashed_message == signature_payload;
 
     #if DEBUG
-        std::cout << "The signature contained message hash: " << std::hex << signature_payload << std::endl;
+        std::cout << "The signature contained message hash: " << std::hex << signature_payload << std::dec << std::endl;
         std::cout << "The signature is " << (valid ? "valid" : "INVALID") << "." << std::endl;
     #endif
 
