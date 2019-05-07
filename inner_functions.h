@@ -4,6 +4,11 @@
 
 using namespace CryptoPP;
 
+/* Generates a single-use secret value for blinding a message before it is sent
+ * to the signer.
+ * The public key is needed as a parameter because the space of valid secrets
+ * depends on the details of the key.
+ */
 Integer GenerateClientSecret(const RSA::PublicKey &public_key, AutoSeededRandomPool &rng_source)
 {
     const Integer &n = public_key.GetModulus();
@@ -21,6 +26,8 @@ Integer GenerateClientSecret(const RSA::PublicKey &public_key, AutoSeededRandomP
     return client_secret;
 }
 
+/* Generates a blinded version of the message value, to be sent to the signer.
+ */
 Integer MessageBlinding(const Integer &hashed_message, const RSA::PublicKey &public_key, const Integer &client_secret)
 {
     const Integer &n = public_key.GetModulus();
@@ -37,6 +44,8 @@ Integer MessageBlinding(const Integer &hashed_message, const RSA::PublicKey &pub
     return hidden_message;
 }
 
+/* Retrieves the completed signature from a blinded signature.
+ */
 Integer SignatureUnblinding(const Integer &blinded_signature, const RSA::PublicKey &public_key, const Integer &client_secret)
 {
     const Integer &n = public_key.GetModulus();
@@ -51,6 +60,10 @@ Integer SignatureUnblinding(const Integer &blinded_signature, const RSA::PublicK
     return signed_unblinded;
 }
 
+/* Blindly signs the provided hash.
+ * The returned value is not quite a complete signature; it must be unblinded
+ * by the original requestor using the one-time client secret.
+ */
 Integer SignBlindedMessage(const Integer &blinded_hash, const RSA::PrivateKey &private_key, AutoSeededRandomPool &rng_source)
 {
     Integer signed_message = private_key.CalculateInverse(rng_source, blinded_hash);
@@ -62,6 +75,10 @@ Integer SignBlindedMessage(const Integer &blinded_hash, const RSA::PrivateKey &p
     return signed_message;
 }
 
+/* Prior to unblinding a signature, checks if the signature will be valid.
+ * **It's unclear if this contributes anything of value to the algorithm or
+ * this library. We include it for now for completeness.**
+ */
 bool PreverifySignature(const Integer &signed_blinded_hash, const Integer &blinded_hash, const RSA::PublicKey &public_key)
 {
     bool valid = public_key.ApplyFunction(signed_blinded_hash) == blinded_hash;
@@ -73,6 +90,8 @@ bool PreverifySignature(const Integer &signed_blinded_hash, const Integer &blind
     return valid;
 }
 
+/* Checks that a completed signature is a valid signature of the message hash. 
+ */
 bool VerifySignature(const Integer &unblinded_signature, const Integer &hashed_message, const RSA::PublicKey &public_key)
 {
     Integer signature_payload = public_key.ApplyFunction(unblinded_signature);

@@ -5,6 +5,9 @@ using namespace CryptoPP;
 
 static AutoSeededRandomPool rng_source;
 
+/* Generates a key pair using system calls to openssl.
+ * Then loads the keys and uses them to walk through the steps of hashing, blind-signing, and verifying the signature. 
+ */
 int main(int argc, char *argv[])
 {
     if(0 == std::system(NULL)

@@ -9,6 +9,8 @@ static const std::regex PEM_Key_Regex_Public(
 static const std::regex PEM_Key_Regex_Private(
     "-----BEGIN (?:RSA )?PRIVATE KEY-----[\\r\\n]+([^-]*)[\\r\\n]+-----END (?:RSA )?PRIVATE KEY-----");
 
+/* Generates the SHA512 hash of an arbitrary string.
+ */
 Integer GenerateHash(const std::string &message)
 {
     SHA512 hash;
@@ -29,6 +31,8 @@ Integer GenerateHash(const std::string &message)
     return hashed_message;
 }
 
+/* Loads an RSA Public Key from the specified file.
+ */
 RSA::PublicKey ReadPEMPublicKey(std::string file_name)
 {
     RSA::PublicKey public_key;
@@ -37,6 +41,9 @@ RSA::PublicKey ReadPEMPublicKey(std::string file_name)
     return public_key;
 }
 
+/* Loads an RSA Private Key from the specified file.
+ * The key must not be password protected.
+ */
 RSA::PrivateKey ReadPEMPrivateKey(std::string file_name)
 {
         RSA::PrivateKey private_key;

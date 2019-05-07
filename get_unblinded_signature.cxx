@@ -2,7 +2,10 @@
 
 using namespace CryptoPP;
 
+#define DOCUMENTATION "Un-blinds the pre-signature using the same client_secret used to generate the blinded-hash. Also verifies the signature. The client secret should not be stored once it has served its purpose once."
+#define USEAGE "blsig_get_unblinded_signature blind_signature blinded_hash client_secret public_key.pem"
 #define ARGUMENT_COUNT 4
+
 static Integer blinded_signature;
 static Integer blinded_hash;
 static Integer client_secret;
@@ -11,7 +14,10 @@ static RSA::PublicKey public_key;
 int main(int argc, char *argv[])
 {
     if(ARGUMENT_COUNT != --argc){
-        std::cerr << "Incorrect useage of " << argv[0] << ". Expected " << ARGUMENT_COUNT << "  arguments; given " << argc << "." << std::endl;
+        std::cerr << "Incorrect useage of " << argv[0]
+            << ". Expected " << ARGUMENT_COUNT << " arguments; given " << argc << "." << std::endl
+            << "Useage: \n\t" << USEAGE << std::endl
+            << DOCUMENTATION << std::endl;
         return EXIT_FAILURE;
     }
 
