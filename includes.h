@@ -10,6 +10,8 @@
 # include <regex>
 # include <stdexcept>
 
+// Use "" based includes for the cryptopp library because it's perfectly
+// legitimate to install it to the local directory. 
 # include "cryptopp810/base64.h"
 # include "cryptopp810/cryptlib.h"
 # include "cryptopp810/files.h"
