@@ -1,5 +1,5 @@
 # RSA-Blind-Signature
-A RSA Blind Signature implementation using Crypto++, based on Chaum's paper.
+A RSA [Blind Signature](https://en.wikipedia.org/wiki/Blind_signature) implementation using Crypto++, based on Chaum's paper.
 
 At its core, this library is based on the [example on the Crypto++ wiki](https://www.cryptopp.com/wiki/Raw_RSA#RSA_Blind_Signature).  
 [Here is the documentation for the Crypto++ library](https://www.cryptopp.com/docs/ref/).  
