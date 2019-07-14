@@ -44,6 +44,6 @@ The executables, on success, will print their responses as text to standard-out,
 - blsig_get_unblinded_signature: Un-blinds the pre-signature using the same client_secret used to generate the blinded-hash. Also verifies the signature. The client secret should not be stored once it has served its purpose once.  
   `blsig_get_unblinded_signature blind_signature blinded_hash client_secret public_key.pem`
 - blsig_verify_unblinded_signature: Confirms that a provided signature is a valid signature, by the corresponding private-key, of the provided message. Prints `true` for success.  
-  `blsig_verify_unlinded_signature unblinded_signature message public_key.pem`
+/bin/bash: s: command not found
 - test: The most rudimentary of tests for the most rudimentary of libraries! It's probably not useful in a production setting, but it's a good place to start into the code.  
   `test`

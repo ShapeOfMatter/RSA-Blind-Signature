@@ -3,7 +3,7 @@
 using namespace CryptoPP;
 
 #define DOCUMENTATION "Confirms that a provided signature is a valid signature, by the corresponding private-key, of the provided message. Prints true for success."
-#define USEAGE "blsig_verify_unlinded_signature unblinded_signature message public_key.pem"
+#define USEAGE "blsig_verify_unblinded_signature unblinded_signature message public_key.pem"
 #define ARGUMENT_COUNT 3
 
 static Integer unblinded_signature;
