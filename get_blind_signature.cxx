@@ -4,7 +4,7 @@ using namespace CryptoPP;
 
 static AutoSeededRandomPool rng_source;
 
-#define DOCUMENTATION "Generates a "pre-signature" (or hashed signature or whatever you want to call it) without any knowledge of the message, the message-hash, or the client secret."
+#define DOCUMENTATION "Generates a \"pre-signature\" (or hashed signature or whatever you want to call it) without any knowledge of the message, the message-hash, or the client secret."
 #define USEAGE "blsig_get_blind_signature blinded_hash private_key.pem"
 #define ARGUMENT_COUNT 2
 
